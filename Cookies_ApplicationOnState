@@ -1,0 +1,143 @@
+12) Develop a web application in ASP.NET that showcases the use of
+different state management techniques. The application should
+include the following functionalities:
+- Cookies:
+a) Develop a page with a counter that increments each time the
+page is loaded.
+b) Use cookies to persistently store and retrieve the counter
+value. Display the counter on the page.
+- Application State:
+a) Implement a feature that maintains a count of the total
+number of visits to the application.
+b) Use Application State to store and update the visit count.
+Display the count on the web page
+
+Cookies:
+1)add->webform1:
+<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="WebForm1.aspx.cs" Inherits="cookiee.WebForm1" %>
+
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head runat="server">
+    <title>Cookie Counter Page</title>
+</head>
+<body>
+    <form id="form1" runat="server">
+        <div>
+            <h2>Cookie Counter</h2>
+            <asp:Label ID="lblCounter" runat="server" Text=""></asp:Label>
+        </div>
+    </form>
+</body>
+</html>
+
+
+Webform1.aspx.cs:
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.UI;
+using System.Web.UI.WebControls;
+
+namespace cookiee
+{
+    public partial class WebForm1 : System.Web.UI.Page
+    {
+        protected void Page_Load(object sender, EventArgs e)
+        {
+            if (!IsPostBack)
+            {
+                int counter = GetCounterFromCookie();
+                counter++;
+                SetCounterInCookie(counter);
+                lblCounter.Text = "Counter: " + counter;
+            }
+        }
+
+        private int GetCounterFromCookie()
+        {
+            HttpCookie cookie = Request.Cookies["CounterCookie"];
+            return (cookie != null && int.TryParse(cookie.Value, out int counter)) ? counter : 0;
+        }
+
+        private void SetCounterInCookie(int counter)
+        {
+            HttpCookie cookie = new HttpCookie("CounterCookie", counter.ToString());
+            cookie.Expires = DateTime.Now.AddMonths(1);
+            Response.Cookies.Add(cookie);
+        }
+    }
+}
+
+
+2)add->webform2:
+<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="WebForm2.aspx.cs" Inherits="cookiee.WebForm2" %>
+
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head runat="server">
+    <title>Cookie Counter Page</title>
+</head>
+<body>
+    <form id="form1" runat="server">
+        <div>
+            <h2>Cookie Counter</h2>
+            <asp:Label ID="lblVisitCount" runat="server" Text=""></asp:Label>
+        </div>
+    </form>
+</body>
+</html>
+
+
+Webform2.aspx.cs:
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.UI;
+using System.Web.UI.WebControls;
+
+namespace cookiee
+{
+    public partial class WebForm2 : System.Web.UI.Page
+    {
+        protected void Page_Load(object sender, EventArgs e)
+        {
+            if (!IsPostBack)
+            {
+                int visitCount = (int)Application["VisitCount"];
+                visitCount++;
+                Application["VisitCount"] = visitCount;
+                lblVisitCount.Text = "Total Visits: " + visitCount;
+            }
+        }
+    }
+}
+
+
+3)Double Click on global.asax:
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.Optimization;
+using System.Web.Routing;
+using System.Web.Security;
+using System.Web.SessionState;
+
+namespace cookiee
+{
+    public class Global : HttpApplication
+    {
+        void Application_Start(object sender, EventArgs e)
+        {
+            // Code that runs on application startup
+            //RouteConfig.RegisterRoutes(RouteTable.Routes);
+            //BundleConfig.RegisterBundles(BundleTable.Bundles);
+            Application["VisitCount"] = 0;
+        }
+    }
+}
